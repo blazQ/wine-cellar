@@ -1,11 +1,13 @@
 from typing import Tuple, Any
+from config import DefaultConfig
 import boto3
 import datetime
 import random
 from abc import ABC, abstractmethod
 
 
-sqs = boto3.resource('sqs', endpoint_url='http://localhost:4566')
+sqs = boto3.resource('sqs', endpoint_url=DefaultConfig.EXTERNAL_ENDPOINT)
+
 
 '''
     Generic abstract class for a sensor
@@ -18,7 +20,7 @@ class Sensor(ABC):
     error_queue: sqs.Queue
     failure_rate: float
 
-    def __init__(self, sensor_queue:sqs.Queue, error_queue:sqs.Queue, id:str, failure_rate:float = 0.5) -> None:
+    def __init__(self, sensor_queue:sqs.Queue, error_queue:sqs.Queue, id:str, failure_rate:float = DefaultConfig.DEFAULT_FAILURE_RATE) -> None:
         super().__init__()
         self.sensor_queue = sensor_queue
         self.error_queue = error_queue
@@ -61,7 +63,7 @@ class TemperatureSensor(Sensor):
 
 
 class DewpointSensor(Sensor):
-    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float = 0.5) -> None:
+    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float) -> None:
         super().__init__(sensor_queue, error_queue, id, failure_rate)
     
     def get_readings_sensor(self) -> Tuple[int, float]:
@@ -75,7 +77,7 @@ class DewpointSensor(Sensor):
     
 
 class VibrationSensor(Sensor):
-    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float = 0.5) -> None:
+    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float) -> None:
         super().__init__(sensor_queue, error_queue, id, failure_rate)
     
     def get_readings_sensor(self) -> Tuple[int, float]:
@@ -88,7 +90,7 @@ class VibrationSensor(Sensor):
         return status_code, vibration 
     
 class DoorSensor(Sensor):
-    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float = 0.5) -> None:
+    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float) -> None:
         super().__init__(sensor_queue, error_queue, id, failure_rate)
 
     def get_readings_sensor(self) -> Tuple[int, str]:

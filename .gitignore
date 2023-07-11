@@ -161,3 +161,7 @@ cython_debug/
 
 *.txt
 *.zip
+.DS_Store
+.gitignore
+volume/*
+out
