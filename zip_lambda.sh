@@ -1,27 +1,36 @@
 #!/bin/bash
 
-# Define the source and destination folders
-src_folder="src"
-dest_folder="destination"
+# Source folder containing the files
+source_folder="src"
+
+# Destination folder to store the zipped file
+destination_folder="zip"
+
+# Filename passed as a command-line argument
+filename="$1"
+
+if [[ -z "$filename" ]]; then
+    echo "Error: Please provide a filename as a command-line argument."
+    exit 1
+fi
 
 # Create the destination folder if it doesn't exist
-mkdir -p "$dest_folder"
+mkdir -p "$destination_folder"
 
-# Copy the files from src folder to the destination folder
-cp "$src_folder/vaporFunc.py" "$dest_folder"
-cp "$src_folder/config.py" "$dest_folder"
+# Copy the file to the destination folder
+cp "$source_folder/$filename" "$destination_folder/$filename"
+cp "$source_folder/config.py" "$destination_folder/config.py"
 
-# Navigate to the destination folder
-cd "$dest_folder"
+# Change to the destination folder
+cd "$destination_folder" || exit
 
-# Create a zip file of the files
-zip -j ../function.zip *
+# Zip the file without including the parent directory
+zip -j function.zip "$filename" "config.py"
 
-# Return to the previous directory
-cd ..
+mv function.zip ..
 
-# Delete the destination folder
-rm -r "$dest_folder"
+# Move back to the original directory
+cd - || exit
 
-echo "Files copied, zipped, and destination folder deleted successfully."
-
+# Clean up the destination folder
+rm -dr zip

@@ -21,17 +21,23 @@ def lambda_handler(event, context):
         )
         # Compute vapor pressure
         dew_point = float(payload_json['reading'])
+        room_name = payload_json['room']
         vapor_pressure = compute_vapor_pressure(dew_point)
         # Load it into the second queue
         vapor_pressure_queue = sqs.get_queue_by_name(QueueName=DefaultConfig.VAPOR_PRESSURE_QUEUE_DEFAULT_NAME)
         # JSON is better
         vapor_pressure_dict = {'vapor_pressure': vapor_pressure, 
-                               'timestamp': timestamp
+                               'timestamp': timestamp,
+                               'room': room_name
                                }
         message = json.dumps(vapor_pressure_dict)
         vapor_pressure_queue.send_message(MessageBody=message)
 
-        return vapor_pressure
+    return {
+        'statusCode': 200,
+        'body': 'Lambda function executed successfully.',
+        'payload': message
+    }
 
 def compute_vapor_pressure(dew_point:float):
     return 6.11 * 10.0 * ((7.5 * dew_point)/(237.3 + dew_point))

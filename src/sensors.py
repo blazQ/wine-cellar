@@ -16,16 +16,18 @@ sqs = boto3.resource('sqs', endpoint_url=DefaultConfig.EXTERNAL_ENDPOINT)
 '''
 class Sensor(ABC):
     id: str
+    room: str
     sensor_queue: sqs.Queue
     error_queue: sqs.Queue
     failure_rate: float
 
-    def __init__(self, sensor_queue:sqs.Queue, error_queue:sqs.Queue, id:str, failure_rate:float = DefaultConfig.DEFAULT_FAILURE_RATE) -> None:
+    def __init__(self, sensor_queue:sqs.Queue, error_queue:sqs.Queue, id:str, room:str = "Room 1", failure_rate:float = DefaultConfig.DEFAULT_FAILURE_RATE) -> None:
         super().__init__()
         self.sensor_queue = sensor_queue
         self.error_queue = error_queue
         self.failure_rate = failure_rate
         self.id = id
+        self.room = room
     
     @abstractmethod
     def get_readings_sensor(self) -> Tuple[int, float]:
@@ -42,17 +44,15 @@ class Sensor(ABC):
             print(error_msg)
             self.error_queue.send_message(MessageBody=error_msg)
         else:
-            msg_body = '{"device_id": "%s", "device_type": "%s", "timestamp": "%s", "reading": "%s"}' \
-                        % (self.id, type(self).__name__, timestamp, reading)
+            msg_body = '{"device_id": "%s", "device_type": "%s", "room": "%s", "timestamp": "%s", "reading": "%s"}' \
+                        % (self.id, type(self).__name__, self.room, timestamp, reading)
             print(msg_body)
             self.sensor_queue.send_message(MessageBody=msg_body)
 
         
 
 class TemperatureSensor(Sensor):
-    def __init__(self, sensor_queue:sqs.Queue, error_queue:sqs.Queue, id:str, failure_rate:float) -> None:
-        super().__init__(sensor_queue, error_queue, id, failure_rate)
-    
+
     def get_readings_sensor(self) -> Tuple[int, float]:
         status_code = 1
         temperature = 0
@@ -63,9 +63,7 @@ class TemperatureSensor(Sensor):
 
 
 class DewpointSensor(Sensor):
-    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float) -> None:
-        super().__init__(sensor_queue, error_queue, id, failure_rate)
-    
+
     def get_readings_sensor(self) -> Tuple[int, float]:
         status_code = 1
         dew_point = 0
@@ -77,15 +75,13 @@ class DewpointSensor(Sensor):
     
 
 class VibrationSensor(Sensor):
-    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float) -> None:
-        super().__init__(sensor_queue, error_queue, id, failure_rate)
-    
+
     def get_readings_sensor(self) -> Tuple[int, float]:
         status_code = 1
         vibration = 0
         if random.uniform(0,1)>self.failure_rate:
             status_code = 0
-            vibration = round(random.uniform(0.0, 3.0), 3) # ideal is 0 hz, no vibration, if above 1 send urgent telegram notification
+            vibration = round(random.uniform(0, 3.0), 3) # ideal is 0 hz, no vibration, if above 1 send urgent telegram notification
         
         return status_code, vibration 
     
@@ -112,5 +108,5 @@ if __name__ == '__main__':
     queue = sqs.get_queue_by_name(QueueName=queue_name)
     error_queue_name = "errors"
     error_queue = sqs.get_queue_by_name(QueueName=error_queue_name)
-    sensor_test = DewpointSensor(queue, error_queue, "testSensor", 0.2)
+    sensor_test = DewpointSensor(queue, error_queue, "testSensor", "Room 1", 0.2)
     sensor_test.sense()
