@@ -11,6 +11,7 @@ class DefaultConfig:
     VAPOR_PRESSURE_QUEUE_DEFAULT_NAME = os.environ.get("VaporPressQueue", "vaporPressureQueue")
     BUCKET_DUMP_DEFAULT_NAME = os.environ.get("S3DefaultName", "sensorbucket")
     DEFAULT_FAILURE_RATE = os.environ.get("DefaultFailure", 0.5)
+    KINESIS_DATA_STREAM = os.environ.get("KinesisName", "doorStream")
     BOT_TOKEN = os.environ.get("BotToken", "")
     BOT_ID = os.environ.get("BotId", "")
     ROOM_CONFIGURATION = os.environ.get("BotId")

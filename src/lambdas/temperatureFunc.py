@@ -12,6 +12,7 @@ def lambda_handler(event, context):
     dynamodb = boto3.client('dynamodb', endpoint_url=DefaultConfig.INTERNAL_ENDPOINT)
 
     for record in event['Records']:
+
         # Save record for future inspection
         payload = record["body"]
         timestamp_date = datetime.datetime.now()
@@ -23,12 +24,12 @@ def lambda_handler(event, context):
             Key=key, Body=payload
         )
         # Store value inside db
-        vibration = float(payload_json['reading'])
+        temperature = payload_json['reading']
         room_name = payload_json['room']
         timestamp_unix =  timestamp_date.timestamp()# Converting it to UNIX timestamp
 
         # Querying for current room status
-        response = dynamodb.query(
+        query_response = dynamodb.query(
             TableName=DefaultConfig.NOSQL_TABLE_DEFAULT_NAME,
             KeyConditionExpression='#r = :room_name',
             ExpressionAttributeNames={
@@ -39,9 +40,9 @@ def lambda_handler(event, context):
             }
         )
 
-        if response['Count'] == 1:
-            room_status = response['Items'][0]
-            dynamodb.update_item(
+        if query_response['Count'] == 1:
+            room_status = query_response['Items'][0]
+            update_response = dynamodb.update_item(
                 TableName='RoomStatus',
                 Key={
                     'room_name': {'S': room_status['room_name']['S']},
@@ -49,14 +50,11 @@ def lambda_handler(event, context):
                 ExpressionAttributeNames={
                     '#ts': 'timestamp',
                 },
-                UpdateExpression='SET current_vibration = :vib, #ts = :ts',
+                UpdateExpression='SET current_temperature = :temp, #ts = :ts',
                 ExpressionAttributeValues={
-                    ':vib': {'N': str(vibration)},
+                    ':temp': {'N': temperature},
                     ':ts': {'N': str(timestamp_unix)}
                 }
             )
-    return {
-        'statusCode': 200,
-        'body': 'Lambda function executed successfully.'
-    }
-
+            return update_response
+        else: return query_response

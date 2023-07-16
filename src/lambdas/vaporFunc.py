@@ -12,9 +12,9 @@ def lambda_handler(event, context):
     for record in event['Records']:
         # Save record for future inspection
         payload = record["body"]
+        payload_json = json.loads(payload)
         timestamp = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         id = record["messageId"]
-        payload_json = json.loads(payload)
         key = id + '-' + payload_json['device_type'] + '-' + timestamp
         s3.Bucket(DefaultConfig.BUCKET_DUMP_DEFAULT_NAME).put_object(
             Key=key, Body=payload
@@ -31,13 +31,9 @@ def lambda_handler(event, context):
                                'room': room_name
                                }
         message = json.dumps(vapor_pressure_dict)
-        vapor_pressure_queue.send_message(MessageBody=message)
+        response = vapor_pressure_queue.send_message(MessageBody=message)
+        return response
 
-    return {
-        'statusCode': 200,
-        'body': 'Lambda function executed successfully.',
-        'payload': message
-    }
 
 def compute_vapor_pressure(dew_point:float):
     return 6.11 * 10.0 * ((7.5 * dew_point)/(237.3 + dew_point))

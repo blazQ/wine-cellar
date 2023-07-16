@@ -18,7 +18,7 @@ fi
 mkdir -p "$destination_folder"
 
 # Copy the file to the destination folder
-cp "$source_folder/$filename" "$destination_folder/$filename"
+cp "$source_folder/lambdas/$filename" "$destination_folder/$filename"
 cp "$source_folder/config.py" "$destination_folder/config.py"
 
 # Change to the destination folder

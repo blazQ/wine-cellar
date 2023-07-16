@@ -20,7 +20,7 @@ def lambda_handler(event, context):
         timestamp_unix =  datetime.datetime.now().timestamp()
 
         # Querying for current room status
-        response = dynamodb.query(
+        query_response = dynamodb.query(
             TableName=DefaultConfig.NOSQL_TABLE_DEFAULT_NAME,
             KeyConditionExpression='#r = :room_name',
             ExpressionAttributeNames={
@@ -31,13 +31,13 @@ def lambda_handler(event, context):
             }
         )
 
-        if response['Count'] == 1:
-            room_status = response['Items'][0]
+        if query_response['Count'] == 1:
+            room_status = query_response['Items'][0]
             current_temperature = room_status['current_temperature']['N']
             saturated_vapor_pressure = compute_saturated_vapor_pressure(float(current_temperature))
             humidity = (vapor_pressure/saturated_vapor_pressure) * 100
             # Adjusting humidity   
-            dynamodb.update_item(
+            update_response = dynamodb.update_item(
                 TableName='RoomStatus',
                 Key={
                     'room_name': {'S': room_status['room_name']['S']},
@@ -51,18 +51,8 @@ def lambda_handler(event, context):
                     ':ts': {'N': str(timestamp_unix)}
                 }
             )
-            return {
-                'statusCode': 200,
-                'body': 'Lambda function executed successfully.',
-                'temperature': current_temperature,
-                'vapor_pressure': vapor_pressure,
-                'saturated_p': saturated_vapor_pressure
-            }
-        else:
-            return {
-               'statusCode': 200, 
-               'body': 'Lambda function failed. System might not be initialized.'
-            }
+            return update_response
+        else: return query_response
 
 def compute_saturated_vapor_pressure(current_temperature:float) -> float:
     return 6.11 * 10.0 * ((7.5 * current_temperature)/(237.3 + current_temperature))

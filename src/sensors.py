@@ -86,9 +86,7 @@ class VibrationSensor(Sensor):
         return status_code, vibration 
     
 class DoorSensor(Sensor):
-    def __init__(self, sensor_queue: sqs.Queue, error_queue: sqs.Queue, id: str, failure_rate: float) -> None:
-        super().__init__(sensor_queue, error_queue, id, failure_rate)
-
+    
     def get_readings_sensor(self) -> Tuple[int, str]:
         status_code = 1
         door_status = "Closed"
@@ -104,9 +102,9 @@ class DoorSensor(Sensor):
 
 
 if __name__ == '__main__':
-    queue_name = "dewPointQueue"
+    queue_name = "doorQueue"
     queue = sqs.get_queue_by_name(QueueName=queue_name)
     error_queue_name = "errors"
     error_queue = sqs.get_queue_by_name(QueueName=error_queue_name)
-    sensor_test = DewpointSensor(queue, error_queue, "testSensor", "Room 1", 0.2)
+    sensor_test = DoorSensor(queue, error_queue, "testSensor", "Room 1", 0.2)
     sensor_test.sense()
