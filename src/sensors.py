@@ -40,7 +40,7 @@ class Sensor(ABC):
     def sense(self):
         (code, reading, timestamp) = self.get_readings()
         if code == 1:
-            error_msg = '{"device_id": "%s", "timestamp": "%s"}' % (self.id, timestamp)
+            error_msg = '{"device_id": "%s", "room": "%s", "timestamp": "%s"}' % (self.id, self.room, timestamp)
             print(error_msg)
             self.error_queue.send_message(MessageBody=error_msg)
         else:
@@ -69,7 +69,7 @@ class DewpointSensor(Sensor):
         dew_point = 0
         if random.uniform(0,1)>self.failure_rate:
             status_code = 0
-            dew_point = round(random.uniform(0.0, 6.0), 4) # ideal is 4°C, if above 6 there's a problem, activate ventilation.
+            dew_point = round(random.uniform(5.0, 9.0), 4) # ideal is 4°C, if above 6 there's a problem, activate ventilation.
         
         return status_code, dew_point
     
@@ -102,9 +102,9 @@ class DoorSensor(Sensor):
 
 
 if __name__ == '__main__':
-    queue_name = "doorQueue"
+    queue_name = "dewPointQueue"
     queue = sqs.get_queue_by_name(QueueName=queue_name)
     error_queue_name = "errors"
     error_queue = sqs.get_queue_by_name(QueueName=error_queue_name)
-    sensor_test = DoorSensor(queue, error_queue, "testSensor", "Room 1", 0.2)
+    sensor_test = DewpointSensor(queue, error_queue, "testSensor", "Sweets", 0.1)
     sensor_test.sense()

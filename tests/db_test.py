@@ -8,7 +8,7 @@ dynamodb = boto3.client('dynamodb', endpoint_url="http://localhost:4566")
 
 now = datetime.now()
 now_unix = now.timestamp()
-room_name = "Room 1"
+room_name = "Sweets"
 
 # Query the table for items with timestamp greater than or equal to the calculated timestamp
 response = dynamodb.query(

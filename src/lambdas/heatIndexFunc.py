@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             room_status = query_response['Items'][0]
             current_temperature = room_status['current_temperature']['N']
             saturated_vapor_pressure = compute_saturated_vapor_pressure(float(current_temperature))
-            humidity = (vapor_pressure/saturated_vapor_pressure) * 100
+            humidity = round((vapor_pressure/saturated_vapor_pressure) * 100, 2)
             # Adjusting humidity   
             update_response = dynamodb.update_item(
                 TableName='RoomStatus',

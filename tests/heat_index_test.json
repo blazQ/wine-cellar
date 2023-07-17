@@ -3,7 +3,7 @@
         {
             "messageId": "059f36b4-87a3-44ab-83d2-661975830a7d",
             "receiptHandle": "AQEBwJnKyrHigUMZj6rYigCgxlaS3SLy0a...",
-            "body": "{\"vapor_pressure\": 15.486, \"room\": \"Room 1\", \"timestamp\": \"2023-07-11 16:23:20\"}",
+            "body": "{\"vapor_pressure\": 15.486, \"room\": \"Sweets\", \"timestamp\": \"2023-07-11 16:23:20\"}",
             "attributes": {
                 "ApproximateReceiveCount": "1",
                 "SentTimestamp": "1545082649183",

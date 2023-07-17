@@ -1,0 +1,43 @@
+{
+    "rooms": [{
+      "room_name": "Full-bodied reds",
+      "min_temperature": 12,
+      "max_temperature": 18,
+      "max_humidity": 70,
+      "min_humidity": 50,
+      "max_vibrations": 0.05
+    },
+    {
+      "room_name": "Light-to-medium bodied reds",
+      "min_temperature": 10,
+      "max_temperature": 15,
+      "max_humidity": 85,
+      "min_humidity": 60,
+      "max_vibrations": 0.01
+    },
+    {
+      "room_name": "Dry Whites",
+      "min_temperature": 8,
+      "max_temperature": 12,
+      "max_humidity": 55,
+      "min_humidity": 40,
+      "max_vibrations": 0.03
+    },
+    {
+      "room_name": "Sparklings",
+      "min_temperature": 6,
+      "max_temperature": 8,
+      "max_humidity": 75,
+      "min_humidity": 60,
+      "max_vibrations": 0.01
+    },
+    {
+      "room_name": "Sweets",
+      "min_temperature": 4,
+      "max_temperature": 8,
+      "max_humidity": 70,
+      "min_humidity": 60,
+      "max_vibrations": 0.04
+    }
+    ]
+  }
