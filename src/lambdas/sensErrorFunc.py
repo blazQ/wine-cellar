@@ -13,5 +13,5 @@ def lambda_handler(event, context):
         payload = record["body"]
         subject = "Sensor Error"
         response = sns.publish(TopicArn=DefaultConfig.SNS_DEFAULT_TOPIC_ARN, Message=json.dumps({'default': json.dumps(payload)}), 
-                               MessageStructure='json', Subject=subject) 
+                               MessageStructure='json', Subject=subject)
         return response

@@ -7,22 +7,34 @@ set +a
 echo "Creating the queues..."
 
 output_errors=$(aws sqs create-queue --queue-name errors --endpoint-url=http://localhost:4566)
-ERRORS_ARN=$(echo "$output_errors" | jq -r '.QueueUrl')
+ERRORS_URL=$(echo "$output_errors" | jq -r '.QueueUrl')
+ERRORS_ARN=$(aws sqs get-queue-attributes --queue-url $ERRORS_URL \
+--attribute-name QueueArn --endpoint-url=http://localhost:4566 | jq -r '.Attributes.QueueArn')
 
 output_vapor=$(aws sqs create-queue --queue-name vaporPressureQueue --endpoint-url=http://localhost:4566)
-VAPOR_ARN=$(echo "$output_vapor" | jq -r '.QueueUrl')
+VAPOR_URL=$(echo "$output_vapor" | jq -r '.QueueUrl')
+VAPOR_ARN=$(aws sqs get-queue-attributes --queue-url $VAPOR_URL \
+--attribute-name QueueArn --endpoint-url=http://localhost:4566 | jq -r '.Attributes.QueueArn')
 
 output_dewpoint=$(aws sqs create-queue --queue-name dewPointQueue --endpoint-url=http://localhost:4566)
-DEWPOINT_ARN=$(echo "$output_dewpoint" | jq -r '.QueueUrl')
+DEWPOINT_URL=$(echo "$output_dewpoint" | jq -r '.QueueUrl')
+DEWPOINT_ARN=$(aws sqs get-queue-attributes --queue-url $DEWPOINT_URL \
+--attribute-name QueueArn --endpoint-url=http://localhost:4566 | jq -r '.Attributes.QueueArn')
 
 output_temperature=$(aws sqs create-queue --queue-name temperatureQueue --endpoint-url=http://localhost:4566)
-TEMP_ARN=$(echo "$output_temperature" | jq -r '.QueueUrl')
+TEMP_URL=$(echo "$output_temperature" | jq -r '.QueueUrl')
+TEMP_ARN=$(aws sqs get-queue-attributes --queue-url $TEMP_URL \
+--attribute-name QueueArn --endpoint-url=http://localhost:4566 | jq -r '.Attributes.QueueArn')
 
 output_vibration=$(aws sqs create-queue --queue-name vibrationQueue --endpoint-url=http://localhost:4566)
-VIBRATION_ARN=$(echo "$output_vibration" | jq -r '.QueueUrl')
+VIBRATION_URL=$(echo "$output_vibration" | jq -r '.QueueUrl')
+VIBRATION_ARN=$(aws sqs get-queue-attributes --queue-url $VIBRATION_URL \
+--attribute-name QueueArn --endpoint-url=http://localhost:4566 | jq -r '.Attributes.QueueArn')
 
 output_door=$(aws sqs create-queue --queue-name doorQueue --endpoint-url=http://localhost:4566)
-DOOR_ARN=$(echo "$output_door" | jq -r '.QueueUrl')
+DOOR_URL=$(echo "$output_door" | jq -r '.QueueUrl')
+DOOR_ARN=$(aws sqs get-queue-attributes --queue-url $DOOR_URL \
+--attribute-name QueueArn --endpoint-url=http://localhost:4566 | jq -r '.Attributes.QueueArn')
 
 echo "Creating the bucket..."
 
@@ -36,6 +48,11 @@ python3 ./src/db.py
 
 # Create Kinesis Data Stream
 
+# Creating the topic
+echo "Creating the notify topic..."
+# Create the SNS Topic
+output=$(aws sns create-topic --name notificationTopic --endpoint-url=http://localhost:4566)
+TOPIC_ARN=$(echo "$output" | jq -r '.TopicArn')
 
 echo "Creating and enabling role and role policy..."
 # Create admin role
@@ -112,8 +129,9 @@ output_update_v3=$(aws lambda update-function-configuration --function-name stor
 output_update_v4=$(aws lambda update-function-configuration --function-name temperatureFunc \
 --timeout 60 --endpoint-url=http://localhost:4566)
 
+# Granting the env variable containing the topic arn to the container the lambda is hosted in
 output_update_v5=$(aws lambda update-function-configuration --function-name sensErrorFunc \
---timeout 60 --endpoint-url=http://localhost:4566)
+--timeout 60 --environment "Variables={SNSTopicArn=$TOPIC_ARN}" --endpoint-url=http://localhost:4566)
 
 output_update_v6=$(aws lambda update-function-configuration --function-name doorCheckFunc \
 --timeout 60 --endpoint-url=http://localhost:4566)
@@ -195,11 +213,6 @@ output_permission_2=$(aws lambda add-permission \
 echo "Putting targets..."
 output_target_1=$(aws events put-targets --rule door-schedule-rule --targets file://src/door_targets.json --endpoint-url=http://localhost:4566)
 output_target_2=$(aws events put-targets --rule storage-schedule-rule --targets file://src/storage_targets.json --endpoint-url=http://localhost:4566)
-
-echo "Creating the notify topic..."
-# Create the SNS Topic
-output=$(aws sns create-topic --name notificationTopic --endpoint-url=http://localhost:4566)
-TOPIC_ARN=$(echo "$output" | jq -r '.TopicArn')
 
 echo "Subscribing notifyFunc to topic..."
 # Making the notifyFunc subscribe to the topic

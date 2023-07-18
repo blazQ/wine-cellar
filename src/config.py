@@ -13,7 +13,7 @@ class DefaultConfig:
     DEFAULT_FAILURE_RATE = os.environ.get("DefaultFailure", 0.5)
     KINESIS_DATA_STREAM = os.environ.get("KinesisName", "doorStream")
     SNS_TOPIC_DEFAULT_NAME = os.environ.get("SNSTopic", "notificationTopic")
-    SNS_DEFAULT_TOPIC_ARN = os.environ.get("SNSTopicArn", "arn:aws:sns:us-west-2:000000000000:notificationTopic")
+    SNS_DEFAULT_TOPIC_ARN = os.environ.get("SNSTopicArn", "")
     WAITING_TIME = os.environ.get("DoorWaitingTime", 600)
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
     BOT_ID = os.environ.get("BOT_ID", "")

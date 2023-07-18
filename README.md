@@ -92,6 +92,7 @@ chmod +x ./zip_lambda.sh
 ```
 
 The shell script gets the current AWS region and gets all of the ARNs from the output of the commands, so there's no need to set anything. It should work regardless of your configuration.
+For example, there's a lambda function that needs the SNS Topic Arn to be present as an environmental variable. This value is provided to the lambda by the script itself, so there's no need for you to configure it.
 
 Instructions will be continued after the Telegram Bot gets implemented..
 
