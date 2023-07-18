@@ -102,9 +102,9 @@ class DoorSensor(Sensor):
 
 
 if __name__ == '__main__':
-    queue_name = "dewPointQueue"
+    queue_name = "doorQueue"
     queue = sqs.get_queue_by_name(QueueName=queue_name)
     error_queue_name = "errors"
     error_queue = sqs.get_queue_by_name(QueueName=error_queue_name)
-    sensor_test = DewpointSensor(queue, error_queue, "testSensor", "Sweets", 0.1)
+    sensor_test = DoorSensor(queue, error_queue, "testSensor", "Sweets", 0.1)
     sensor_test.sense()

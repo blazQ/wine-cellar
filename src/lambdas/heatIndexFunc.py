@@ -5,9 +5,11 @@ import boto3
 from config import DefaultConfig
 from botocore.exceptions import ClientError
 
-''' Invoked whenever a vapor pressure value is ready on the vapor pressure queue.
+''' 
+    Invoked whenever a vapor pressure value is ready on the vapor pressure queue.
     It retrieves the current temperature from the DB for the associated room, then proceeds in calculating the relative humidity.
-    The subsequent value is stored inside the DB.'''
+    The resulting value is stored inside the DB.
+'''
 
 def lambda_handler(event, context):
     dynamodb = boto3.client('dynamodb', endpoint_url=DefaultConfig.INTERNAL_ENDPOINT)

@@ -6,12 +6,13 @@ from config import DefaultConfig
 from botocore.exceptions import ClientError
 
 '''
-    Gets executed every 10 minutes and check wheter the storage conditions are met
-    Loads storage conditions for each room from a json file
-    Loads rooms
-    Checks if each room is within the accepted ranges
-    If not, sends notifications.
+    Gets executed every 10 minutes and check whether the storage conditions are met
+    Loads storage conditions for each room from a json file.
+    Loads rooms.
+    Checks if each room is within the accepted ranges.
+    If not, sends notifications for each room.
 '''
+
 def lambda_handler(event, context):
     f = open('storage_conditions.json')
     storage_conditions = json.load(f)
