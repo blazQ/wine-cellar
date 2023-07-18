@@ -2,4 +2,4 @@
 
 Under construction ...
 
-![Architecture Image](./images/SCIOT%20Project.jpg "Project Architecture")
+![Architecture Image](./images/SCIOT-Project.jpg "Project Architecture")
