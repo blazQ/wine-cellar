@@ -163,6 +163,7 @@ cython_debug/
 *.zip
 .DS_Store
 .gitignore
+.env
 volume/*
 out
 *vscode/*

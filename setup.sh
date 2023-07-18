@@ -1,17 +1,33 @@
+# Sourcing .env variables 
+set -a
+source .env
+set +a
+
 # Create SQS Queues
 echo "Creating the queues..."
 
-aws sqs create-queue --queue-name errors --endpoint-url=http://localhost:4566
-aws sqs create-queue --queue-name vaporPressureQueue --endpoint-url=http://localhost:4566
-aws sqs create-queue --queue-name dewPointQueue --endpoint-url=http://localhost:4566
-aws sqs create-queue --queue-name temperatureQueue --endpoint-url=http://localhost:4566
-aws sqs create-queue --queue-name vibrationQueue --endpoint-url=http://localhost:4566
-aws sqs create-queue --queue-name doorQueue --endpoint-url=http://localhost:4566
+output_errors=$(aws sqs create-queue --queue-name errors --endpoint-url=http://localhost:4566)
+ERRORS_ARN=$(echo "$output_errors" | jq -r '.QueueUrl')
+
+output_vapor=$(aws sqs create-queue --queue-name vaporPressureQueue --endpoint-url=http://localhost:4566)
+VAPOR_ARN=$(echo "$output_vapor" | jq -r '.QueueUrl')
+
+output_dewpoint=$(aws sqs create-queue --queue-name dewPointQueue --endpoint-url=http://localhost:4566)
+DEWPOINT_ARN=$(echo "$output_dewpoint" | jq -r '.QueueUrl')
+
+output_temperature=$(aws sqs create-queue --queue-name temperatureQueue --endpoint-url=http://localhost:4566)
+TEMP_ARN=$(echo "$output_temperature" | jq -r '.QueueUrl')
+
+output_vibration=$(aws sqs create-queue --queue-name vibrationQueue --endpoint-url=http://localhost:4566)
+VIBRATION_ARN=$(echo "$output_vibration" | jq -r '.QueueUrl')
+
+output_door=$(aws sqs create-queue --queue-name doorQueue --endpoint-url=http://localhost:4566)
+DOOR_ARN=$(echo "$output_door" | jq -r '.QueueUrl')
 
 echo "Creating the bucket..."
 
 # Create the S3 Bucket
-aws s3 mb s3://sensorbucket --endpoint-url=http://localhost:4566
+output_bucket=$(aws s3 mb s3://sensorbucket --endpoint-url=http://localhost:4566)
 
 echo "Creating and populating db..."
 
@@ -23,12 +39,12 @@ python3 ./src/db.py
 
 echo "Creating and enabling role and role policy..."
 # Create admin role
-aws iam create-role --role-name lambda-ex --assume-role-policy-document file://./policies/lambda_role_policy.json \
---query 'Role.Arn' --endpoint-url=http://localhost:4566
+output_role=$(aws iam create-role --role-name lambda-ex --assume-role-policy-document file://./policies/lambda_role_policy.json --endpoint-url=http://localhost:4566)
+output_role_ARN=$(echo "$output_role" | jq -r '.Role.Arn')
 
 # Attach policy to the role
-aws iam put-role-policy --role-name lambda-ex --policy-name lambdapolicy \
---policy-document file://./policies/sensor_lambda_policy.json --endpoint-url=http://localhost:4566
+output_role_attach=$(aws iam put-role-policy --role-name lambda-ex --policy-name lambdapolicy \
+--policy-document file://./policies/sensor_lambda_policy.json --endpoint-url=http://localhost:4566)
 
 echo "Zipping all lambda functions..."
 
@@ -38,144 +54,147 @@ zip -j function9.zip ./src/lambdas/storageConditionsFunc.py ./src/config.py ./sr
 
 echo "Creating lambda functions.."
 
-aws lambda create-function --function-name doorCheckFunc \
+output_door_func=$(aws lambda create-function --function-name doorCheckFunc \
 --zip-file fileb://function1.zip --handler doorCheckFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda create-function --function-name doorStatusFunc \
+output_door_check_func=$(aws lambda create-function --function-name doorStatusFunc \
 --zip-file fileb://function2.zip --handler doorStatusFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda create-function --function-name heatIndexFunc \
+output_heat_func=$(aws lambda create-function --function-name heatIndexFunc \
 --zip-file fileb://function3.zip --handler heatIndexFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda create-function --function-name notifyFunc \
+output_notify=$(aws lambda create-function --function-name notifyFunc \
 --zip-file fileb://function4.zip --handler notifyFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
+NOTIFY_ARN=$(echo "$output_notify" | jq -r '.FunctionArn')
 
-aws lambda create-function --function-name sensErrorFunc \
+output_error_func=$(aws lambda create-function --function-name sensErrorFunc \
 --zip-file fileb://function5.zip --handler sensErrorFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda create-function --function-name temperatureFunc \
+output_temp_func=$(aws lambda create-function --function-name temperatureFunc \
 --zip-file fileb://function6.zip --handler temperatureFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda create-function --function-name vaporFunc \
+output_vapor_func=$(aws lambda create-function --function-name vaporFunc \
 --zip-file fileb://function7.zip --handler vaporFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda create-function --function-name vibrationFunc \
+output_vib_func=$(aws lambda create-function --function-name vibrationFunc \
 --zip-file fileb://function8.zip --handler vibrationFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda create-function --function-name storageConditionsFunc \
+output_storage_func=$(aws lambda create-function --function-name storageConditionsFunc \
 --zip-file fileb://function9.zip --handler storageConditionsFunc.lambda_handler  \
---runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-ex \
---endpoint-url=http://localhost:4566
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name vaporFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v1=$(aws lambda update-function-configuration --function-name vaporFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name vibrationFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v2=$(aws lambda update-function-configuration --function-name vibrationFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name storageConditionsFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v3=$(aws lambda update-function-configuration --function-name storageConditionsFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name temperatureFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v4=$(aws lambda update-function-configuration --function-name temperatureFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name sensErrorFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v5=$(aws lambda update-function-configuration --function-name sensErrorFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name doorCheckFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v6=$(aws lambda update-function-configuration --function-name doorCheckFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name doorStatusFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v7=$(aws lambda update-function-configuration --function-name doorStatusFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name notifyFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v8=$(aws lambda update-function-configuration --function-name notifyFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
-aws lambda update-function-configuration --function-name heatIndexFunc \
---timeout 60 --endpoint-url=http://localhost:4566
+output_update_v9=$(aws lambda update-function-configuration --function-name heatIndexFunc \
+--timeout 60 --endpoint-url=http://localhost:4566)
 
 echo "Creating all event-source mappings..."
 # Mapping to get vapor from dewpointqueue
- aws lambda create-event-source-mapping --function-name vaporFunc --batch-size 5 \
- --maximum-batching-window-in-seconds 60 --event-source-arn arn:aws:sqs:us-west-2:000000000000:dewPointQueue \
- --endpoint-url=http://localhost:4566
+output_e_1=$(aws lambda create-event-source-mapping --function-name vaporFunc --batch-size 5 \
+ --maximum-batching-window-in-seconds 60 --event-source-arn $DEWPOINT_ARN \
+ --endpoint-url=http://localhost:4566)
 
  # Mapping to get vibration from vibrationqueue
-  aws lambda create-event-source-mapping --function-name vibrationFunc --batch-size 5 \
- --maximum-batching-window-in-seconds 60 --event-source-arn arn:aws:sqs:us-west-2:000000000000:vibrationQueue \
- --endpoint-url=http://localhost:4566
+output_e_2=$(aws lambda create-event-source-mapping --function-name vibrationFunc --batch-size 5 \
+ --maximum-batching-window-in-seconds 60 --event-source-arn $VIBRATION_ARN \
+ --endpoint-url=http://localhost:4566)
 
 # Mapping to get temperature from temperaturequeue
-  aws lambda create-event-source-mapping --function-name temperatureFunc --batch-size 5 \
- --maximum-batching-window-in-seconds 60 --event-source-arn arn:aws:sqs:us-west-2:000000000000:temperatureQueue \
- --endpoint-url=http://localhost:4566
+output_e_3=$(aws lambda create-event-source-mapping --function-name temperatureFunc --batch-size 5 \
+ --maximum-batching-window-in-seconds 60 --event-source-arn $TEMP_ARN \
+ --endpoint-url=http://localhost:4566)
 
 # mapping to get heat index from vaporPressure
-  aws lambda create-event-source-mapping --function-name heatIndexFunc --batch-size 5 \
- --maximum-batching-window-in-seconds 60 --event-source-arn arn:aws:sqs:us-west-2:000000000000:vaporPressureQueue \
- --endpoint-url=http://localhost:4566
+output_e_4=$(aws lambda create-event-source-mapping --function-name heatIndexFunc --batch-size 5 \
+ --maximum-batching-window-in-seconds 60 --event-source-arn $VAPOR_ARN \
+ --endpoint-url=http://localhost:4566)
 
 # mapping to get door status from doorqueue
-  aws lambda create-event-source-mapping --function-name doorStatusFunc --batch-size 5 \
- --maximum-batching-window-in-seconds 60 --event-source-arn arn:aws:sqs:us-west-2:000000000000:doorQueue \
- --endpoint-url=http://localhost:4566
+output_e_5=$(aws lambda create-event-source-mapping --function-name doorStatusFunc --batch-size 5 \
+ --maximum-batching-window-in-seconds 60 --event-source-arn $DOOR_ARN \
+ --endpoint-url=http://localhost:4566)
 
 # mapping to get sens error status from error queue
-  aws lambda create-event-source-mapping --function-name sensErrorFunc --batch-size 5 \
- --maximum-batching-window-in-seconds 60 --event-source-arn arn:aws:sqs:us-west-2:000000000000:errors \
- --endpoint-url=http://localhost:4566
+output_e_6=$(aws lambda create-event-source-mapping --function-name sensErrorFunc --batch-size 5 \
+ --maximum-batching-window-in-seconds 60 --event-source-arn $ERRORS_ARN \
+ --endpoint-url=http://localhost:4566)
 
 echo "Creating EventBridge rules to enable door checking and storage checking..."
 # EventBridge rules
-aws events put-rule \
+rule_door=$(aws events put-rule \
 --name door-schedule-rule \
 --schedule-expression 'rate(5 minutes)' \
---endpoint-url=http://localhost:4566
+--endpoint-url=http://localhost:4566)
+rule_door_ARN=$(echo "$rule_door" | jq -r '.RuleArn')
 
-aws events put-rule \
+rule_storage=$(aws events put-rule \
 --name storage-schedule-rule \
 --schedule-expression 'rate(2 minutes)' \
---endpoint-url=http://localhost:4566
+--endpoint-url=http://localhost:4566)
+rule_storage_ARN=$(echo "$rule_storage" | jq -r '.RuleArn')
 
 # Add permissions to rule
 echo "Adding permissions..."
 
-aws lambda add-permission \
+output_permission_1=$(aws lambda add-permission \
 --function-name doorCheckFunc \
 --statement-id door-schedule-rule \
 --action 'lambda:InvokeFunction' \
 --principal events.amazonaws.com \
---source-arn arn:aws:events:us-west-2:000000000000:rule/door-schedule-rule \
---endpoint-url=http://localhost:4566 
+--source-arn $rule_door_ARN \
+--endpoint-url=http://localhost:4566)
 
-aws lambda add-permission \
+output_permission_2=$(aws lambda add-permission \
 --function-name storageConditionsFunc \
 --statement-id storage-schedule-rule \
 --action 'lambda:InvokeFunction' \
 --principal events.amazonaws.com \
---source-arn arn:aws:events:us-west-2:000000000000:rule/door-schedule-rule \
---endpoint-url=http://localhost:4566 
+--source-arn $rule_storage_ARN \
+--endpoint-url=http://localhost:4566)
 
 # Putting targets
 echo "Putting targets..."
-aws events put-targets --rule door-schedule-rule --targets file://src/door_targets.json --endpoint-url=http://localhost:4566
-aws events put-targets --rule storage-schedule-rule --targets file://src/storage_targets.json --endpoint-url=http://localhost:4566
+output_target_1=$(aws events put-targets --rule door-schedule-rule --targets file://src/door_targets.json --endpoint-url=http://localhost:4566)
+output_target_2=$(aws events put-targets --rule storage-schedule-rule --targets file://src/storage_targets.json --endpoint-url=http://localhost:4566)
 
 echo "Creating the notify topic..."
 # Create the SNS Topic
@@ -184,11 +203,12 @@ TOPIC_ARN=$(echo "$output" | jq -r '.TopicArn')
 
 echo "Subscribing notifyFunc to topic..."
 # Making the notifyFunc subscribe to the topic
-aws sns subscribe --protocol lambda \
---region us-west-2 \
+current_region=$(aws configure get region)
+output_subscribe=$(aws sns subscribe --protocol lambda \
+--region $current_region \
 --topic-arn $TOPIC_ARN \
---notification-endpoint arn:aws:lambda:us-west-2:000000000000:function:notifyFunc \
---endpoint-url=http://localhost:4566
+--notification-endpoint $NOTIFY_ARN \
+--endpoint-url=http://localhost:4566)
 
 echo "Cleaning up folders..."
 rm -f *.zip

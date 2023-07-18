@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     for item in items:
         door_status = item['door_status']['S']
         door_timestamp = item['door_timestamp']['N']
-        if door_status == 'Open' and (datetime.datetime.now().timestamp() - float(door_timestamp) == DefaultConfig.WAITING_TIME): # 10 minutes
+        if door_status == 'Open' and (datetime.datetime.now().timestamp() - float(door_timestamp) >= DefaultConfig.WAITING_TIME): # 10 minutes
             # send message to SNS
             subject = "Door left open!"
             sns.publish(TopicArn=DefaultConfig.SNS_DEFAULT_TOPIC_ARN, Message=json.dumps({'default': json.dumps(item)}), 

@@ -14,7 +14,6 @@ It makes use of Docker, Localstack and various utilities in order to manage, in 
     - [Manual Install](#manual-install)
   - [Future developments](#future-developments)
 
-
 ## Introduction
 
 It is a known fact that fine wines require a certain degree of aging. For decades, humanity has developed many ways of keeping wine in the perfect conditions to do so.
@@ -75,6 +74,13 @@ cd wine-cellar
 docker-compose up
 ```
 
+Then you need to either update config.py with your own Telegram ID and Bot Token, or create a .env file with your own BOT_ID and BOT_TOKEN variables.
+Then simply
+
+```shell
+source .env
+```
+
 ### Automated Install
 
 Open another terminal in the main folder and start the setup.sh script:
@@ -84,6 +90,8 @@ chmod +x ./setup,sh
 chmod +x ./zip_lambda.sh
 ./setup.sh
 ```
+
+The shell script gets the current AWS region and gets all of the ARNs from the output of the commands, so there's no need to set anything. It should work regardless of your configuration.
 
 Instructions will be continued after the Telegram Bot gets implemented..
 
