@@ -11,6 +11,8 @@ from botocore.exceptions import ClientError
     Takes a value from Dynamo and checks if the door has been open for 10 minutes
 '''
 
+#TODO: Reimplement Kinesis instead of Dynamo
+
 def lambda_handler(event, context):
     dynamodb = boto3.client('dynamodb', endpoint_url=DefaultConfig.INTERNAL_ENDPOINT)
     sns = boto3.client('sns', endpoint_url=DefaultConfig.INTERNAL_ENDPOINT)

@@ -9,6 +9,8 @@ from botocore.exceptions import ClientError
     Takes a value from the Door Sensor Queue and uploads it to Dynamo
 '''
 
+#TODO: Reimplement Kinesis instead of Dynamo
+
 def lambda_handler(event, context):
     s3 = boto3.resource('s3', endpoint_url=DefaultConfig.INTERNAL_ENDPOINT)
     dynamodb = boto3.client('dynamodb', endpoint_url=DefaultConfig.INTERNAL_ENDPOINT)

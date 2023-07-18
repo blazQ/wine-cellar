@@ -1,36 +1,32 @@
 #!/bin/bash
 
+# This script zips all lambdas in the project by assuming that there's a config file in the source folder and 
+# all command-line arguments are contained in the src/lambdas folder
+
 # Source folder containing the files
-source_folder="src"
+source_folder="./src"
+lambdas_folder="/lambdas"
 
-# Destination folder to store the zipped file
-destination_folder="zip"
-
-# Filename passed as a command-line argument
-filename="$1"
-
-if [[ -z "$filename" ]]; then
-    echo "Error: Please provide a filename as a command-line argument."
+if [[ $# -eq 0 ]]; then
+    echo "Error: Please provide at least one filename as a command-line argument."
     exit 1
 fi
 
-# Create the destination folder if it doesn't exist
-mkdir -p "$destination_folder"
+# Initialize a counter to generate unique zip file names
+counter=1
 
-# Copy the file to the destination folder
-cp "$source_folder/lambdas/$filename" "$destination_folder/$filename"
-cp "$source_folder/config.py" "$destination_folder/config.py"
+# Loop through each filename passed as a command-line argument
+for filename in "$@"; do
+    # Check if the file exists in the source folder
+    if [[ -f "$source_folder/$lambdas_folder/$filename" ]]; then
+        # Zip the files without including the parent directory
+        zip -j "function$counter.zip" "$source_folder/$lambdas_folder/$filename" "$source_folder/config.py"
 
-# Change to the destination folder
-cd "$destination_folder" || exit
+        echo "Created function$counter.zip"
+    else
+        echo "File '$filename' not found in the source folder. Skipping."
+    fi
 
-# Zip the file without including the parent directory
-zip -j function.zip "$filename" "config.py"
-
-mv function.zip ..
-
-# Move back to the original directory
-cd - || exit
-
-# Clean up the destination folder
-rm -dr zip
+    # Increment the counter for the next iteration
+    ((counter++))
+done
