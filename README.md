@@ -3,6 +3,18 @@
 Simple IoT Architecture designed for the Serverless Computing for IoT Course at the University of Salerno.
 It makes use of Docker, Localstack and various utilities in order to manage, in a very simplified and straightforward way, a wine cellar.
 
+- [Wine Cellar](#wine-cellar)
+  - [Introduction](#introduction)
+  - [Proposed Project Architecture](#proposed-project-architecture)
+    - [Services Used](#services-used)
+  - [Installation](#installation)
+    - [Requirements](#requirements)
+    - [Setting up the environment](#setting-up-the-environment)
+    - [Automated Install](#automated-install)
+    - [Manual Install](#manual-install)
+  - [Future developments](#future-developments)
+
+
 ## Introduction
 
 It is a known fact that fine wines require a certain degree of aging. For decades, humanity has developed many ways of keeping wine in the perfect conditions to do so.
