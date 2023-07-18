@@ -124,7 +124,7 @@ output_update_v2=$(aws lambda update-function-configuration --function-name vibr
 --timeout 60 --endpoint-url=http://localhost:4566)
 
 output_update_v3=$(aws lambda update-function-configuration --function-name storageConditionsFunc \
---timeout 60 --endpoint-url=http://localhost:4566)
+--timeout 60 --environment "Variables={SNSTopicArn=$TOPIC_ARN}" --endpoint-url=http://localhost:4566)
 
 output_update_v4=$(aws lambda update-function-configuration --function-name temperatureFunc \
 --timeout 60 --endpoint-url=http://localhost:4566)
@@ -134,7 +134,7 @@ output_update_v5=$(aws lambda update-function-configuration --function-name sens
 --timeout 60 --environment "Variables={SNSTopicArn=$TOPIC_ARN}" --endpoint-url=http://localhost:4566)
 
 output_update_v6=$(aws lambda update-function-configuration --function-name doorCheckFunc \
---timeout 60 --endpoint-url=http://localhost:4566)
+--timeout 60 --environment "Variables={SNSTopicArn=$TOPIC_ARN}" --endpoint-url=http://localhost:4566)
 
 output_update_v7=$(aws lambda update-function-configuration --function-name doorStatusFunc \
 --timeout 60 --endpoint-url=http://localhost:4566)
