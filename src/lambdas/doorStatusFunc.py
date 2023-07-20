@@ -1,9 +1,9 @@
-import logging
-import json
 import datetime
+import json
+
 import boto3
+
 from config import DefaultConfig
-from botocore.exceptions import ClientError
 
 '''
     Takes a value from the Door Sensor Queue and uploads it to Dynamo

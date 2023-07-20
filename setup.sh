@@ -140,7 +140,7 @@ output_update_v7=$(aws lambda update-function-configuration --function-name door
 --timeout 60 --endpoint-url=http://localhost:4566)
 
 output_update_v8=$(aws lambda update-function-configuration --function-name notifyFunc \
---timeout 60 --endpoint-url=http://localhost:4566)
+--timeout 60 --environment "Variables={BOT_ID=$BOT_ID,BOT_TOKEN=$BOT_TOKEN}" --endpoint-url=http://localhost:4566)
 
 output_update_v9=$(aws lambda update-function-configuration --function-name heatIndexFunc \
 --timeout 60 --endpoint-url=http://localhost:4566)

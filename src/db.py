@@ -1,7 +1,9 @@
-import boto3
 import datetime
-from config import DefaultConfig
 from decimal import Decimal
+
+import boto3
+
+from config import DefaultConfig
 
 dynamodb = boto3.resource('dynamodb', endpoint_url=DefaultConfig.EXTERNAL_ENDPOINT)
 

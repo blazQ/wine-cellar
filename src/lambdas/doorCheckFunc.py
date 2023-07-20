@@ -1,11 +1,13 @@
-import logging
-import json
-import datetime
-import uuid
-import boto3
 import base64
-from config import DefaultConfig
+import datetime
+import json
+import logging
+import uuid
+
+import boto3
 from botocore.exceptions import ClientError
+
+from config import DefaultConfig
 
 '''
     Takes a value from Dynamo and checks if the door has been open for 10 minutes

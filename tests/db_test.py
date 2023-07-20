@@ -1,7 +1,8 @@
 # Initialize DynamoDB client
-import boto3
 import time
 from datetime import datetime, timedelta
+
+import boto3
 
 dynamodb = boto3.client('dynamodb', endpoint_url="http://localhost:4566")
 

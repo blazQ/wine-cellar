@@ -1,12 +1,16 @@
-import telebot
-from telebot import types
-import boto3
 import datetime
+import os
 import re
+
+import boto3
+import telebot
+from dotenv import load_dotenv
+from telebot import types
+
 from config import DefaultConfig
 
-
-bot = telebot.TeleBot(token=DefaultConfig.BOT_TOKEN)
+load_dotenv()
+bot = telebot.TeleBot(token=os.environ.get("BOT_TOKEN"))
 dynamoDB = boto3.client('dynamodb', endpoint_url=DefaultConfig.EXTERNAL_ENDPOINT)
 
 class BotStatus:
@@ -116,13 +120,6 @@ def handle_user_response(message):
             get_room_info(message)
             bot_status.callback_status = False
         else: send_help(message)
-
-
-# TODO: Function that handles the notification for sensor error
-
-# TODO: Function that handles the notification for storage error
-
-# TODO: Function that handles the notification for door error
 
 # TODO: Function that recovers data from the S3 buckets and averages it 
     #TODO: temperature

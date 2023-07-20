@@ -1,9 +1,9 @@
-import logging
-import json
 import datetime
+import json
+
 import boto3
+
 from config import DefaultConfig
-from botocore.exceptions import ClientError
 
 '''
     Gets executed every 10 minutes and check whether the storage conditions are met

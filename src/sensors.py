@@ -1,10 +1,11 @@
-from typing import Tuple, Any
-from config import DefaultConfig
-import boto3
 import datetime
 import random
 from abc import ABC, abstractmethod
+from typing import Any, Tuple
 
+import boto3
+
+from config import DefaultConfig
 
 sqs = boto3.resource('sqs', endpoint_url=DefaultConfig.EXTERNAL_ENDPOINT)
 
@@ -40,7 +41,7 @@ class Sensor(ABC):
     def sense(self):
         (code, reading, timestamp) = self.get_readings()
         if code == 1:
-            error_msg = '{"device_id": "%s", "room": "%s", "timestamp": "%s"}' % (self.id, self.room, timestamp)
+            error_msg = '{"device_id": "%s", "device_type": "%s", "room": "%s", "timestamp": "%s"}' % (self.id, type(self).__name__, self.room, timestamp)
             print(error_msg)
             self.error_queue.send_message(MessageBody=error_msg)
         else:
@@ -102,9 +103,9 @@ class DoorSensor(Sensor):
 
 
 if __name__ == '__main__':
-    queue_name = "doorQueue"
+    queue_name = "temperatureQueue"
     queue = sqs.get_queue_by_name(QueueName=queue_name)
     error_queue_name = "errors"
     error_queue = sqs.get_queue_by_name(QueueName=error_queue_name)
-    sensor_test = DoorSensor(queue, error_queue, "testSensor", "Sweets", 0.1)
+    sensor_test = TemperatureSensor(queue, error_queue, "testSensor", "Sweets", 0)
     sensor_test.sense()

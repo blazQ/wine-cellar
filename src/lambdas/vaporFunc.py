@@ -1,9 +1,10 @@
-import logging
-import json
 import datetime
+import json
+
 import boto3
+
 from config import DefaultConfig
-from botocore.exceptions import ClientError
+
 
 def lambda_handler(event, context):
     sqs = boto3.resource('sqs', endpoint_url=DefaultConfig.INTERNAL_ENDPOINT)

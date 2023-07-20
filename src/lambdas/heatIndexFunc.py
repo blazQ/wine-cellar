@@ -1,9 +1,9 @@
-import logging
-import json
 import datetime
+import json
+
 import boto3
+
 from config import DefaultConfig
-from botocore.exceptions import ClientError
 
 ''' 
     Invoked whenever a vapor pressure value is ready on the vapor pressure queue.

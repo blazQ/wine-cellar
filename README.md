@@ -103,4 +103,5 @@ Will be written when the project is finished.
 ## Future developments
 
 The project could be improved by adding another data pipeline regarding the light sensors, since it's also a very important metric in the context of wine storage.
+An API gateway could be added in order to create a REST API interface. Lambdas could be introduced in order to create charts of the measurments from the S3 data lake.
 It could also be improved by developing a fully integrated web application, using Flask or some other backend server like Nginx.
