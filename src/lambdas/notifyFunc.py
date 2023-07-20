@@ -47,13 +47,13 @@ def format_text_storage_error(message_string):
     #payload = {'room_name': room_name, 'humidity_check': h_check, 'temperature_check': t_check, 
     # 'vibration_check': v_check, 'timestamp': datetime.datetime.now().timestamp()}
     message= json.loads(message_string)
-    return_message= f"There's currently a problem with storage conditions in room {message['room_name']}."
+    return_message= f"There's currently a problem with storage conditions in room {message['room_name']}.\n"
     if message['humidity_check'] == False:
-        return_message += " The relative humidity inside the room is not within accepted ranges.\n"
+        return_message += "The relative humidity inside the room is not within accepted ranges.\n"
     if message['temperature_check'] == False:
-        return_message += " The air temperature inside the room is not within accepted ranges.\n"
+        return_message += "The air temperature inside the room is not within accepted ranges.\n"
     if message['vibration_check'] == False:
-       return_message += " The currently registered vibration inside the room is above accepted ranges.\n"
+       return_message += "The currently registered vibration inside the room is above accepted ranges.\n"
     return_message += f" Lastly checked at {datetime.datetime.utcfromtimestamp(float(message['timestamp'])).strftime('%Y-%m-%d %H:%M:%S')} UTC"
     return return_message
 
