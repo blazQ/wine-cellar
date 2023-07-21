@@ -2,6 +2,7 @@ import datetime
 import os
 import re
 
+import json
 import boto3
 import telebot
 from dotenv import load_dotenv
@@ -12,6 +13,8 @@ from config import DefaultConfig
 load_dotenv()
 bot = telebot.TeleBot(token=os.environ.get("BOT_TOKEN"))
 dynamoDB = boto3.client('dynamodb', endpoint_url=DefaultConfig.EXTERNAL_ENDPOINT)
+kinesis = boto3.client('kinesis', endpoint_url=DefaultConfig.EXTERNAL_ENDPOINT)
+
 
 class BotStatus:
     callback_status = False
@@ -93,6 +96,9 @@ def send_help(message):
     button_info = types.InlineKeyboardButton(
         "Room info", callback_data="get_room_info"
     )
+    button_doors = types.InlineKeyboardButton(
+        "Doors info", callback_data="get_doors"
+    )
     # Create the inline keyboard markup
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(
@@ -102,6 +108,35 @@ def send_help(message):
     # Send the message with inline buttons
     bot.send_message(cid, "Choose a command:", reply_markup=keyboard)
 
+@bot.message_handler(commands=['doors'])
+def get_doors(message):
+    for room in DefaultConfig.ROOM_CONFIGURATION:
+        stream_name = DefaultConfig.KINESIS_DATA_STREAM + room
+        # There's only one shard per stream 
+        shard_id = 'shardId-000000000000'
+        # Iterate over the shard by trimming to the last unprocessed value.
+        response = kinesis.get_shard_iterator(
+            StreamName=stream_name,
+            ShardId=shard_id,
+            ShardIteratorType='TRIM_HORIZON'
+        )
+        shard_iterator = response['ShardIterator']
+        # Access the latest record available
+        response = kinesis.get_records(ShardIterator=shard_iterator)
+        records = response['Records']
+
+        if records:
+            # Obtain json object of the most recent record and check the status
+            last_record = json.loads(get_most_recent_record(records=records)['Data'].decode('utf-8'))
+            door_status = last_record['reading']
+            # Send the status
+            bot.send_message(chat_id=message.chat.id, text=format_door(last_record))
+        else:
+            # No status available yet.
+            bot.send_message(chat_id=message.chat.id, text=f"No status yet available for room {room}")
+
+def format_door(last_record):
+    return f"The door for the {last_record['room']} room is currently {last_record['reading'].lower()}. Last measurement at {datetime.datetime.utcfromtimestamp(float(last_record['timestamp'])).strftime('%Y-%m-%d %H:%M:%S')}"
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_button_click(call):
@@ -110,6 +145,8 @@ def handle_button_click(call):
     if call.data == "get_room_info":
         bot_status.callback_status = True
         bot.send_message(chat_id=call.message.chat.id, text="Please enter the room name:")
+    if call.data == "doors":
+        get_doors(call.message)
 
 @bot.message_handler(func=lambda message: True)
 def handle_user_response(message):
@@ -123,7 +160,12 @@ def handle_user_response(message):
 
 # TODO: Function that creates a chart of the trend of vibration and temperature
 
-# TODO: Function to retrieve Door Status
+def get_most_recent_record(records):
+    max_record = 0
+    for i, record in enumerate(records):
+        if record['ApproximateArrivalTimestamp'] > records[max_record]['ApproximateArrivalTimestamp']:
+            max_record = i
+    return records[max_record]
 
 
 print('Bot started!')
