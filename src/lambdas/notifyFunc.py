@@ -57,5 +57,7 @@ def format_text_storage_error(message_string):
     return_message += f" Lastly checked at {datetime.datetime.utcfromtimestamp(float(message['timestamp'])).strftime('%Y-%m-%d %H:%M:%S')} UTC"
     return return_message
 
-def format_text_door_error(message):
-    return ""
+def format_text_door_error(message_string):
+    message = json.loads(message_string)
+    return_message = f"The door in the {message['room']} room has remained open for more than 10 minutes."
+    return return_message

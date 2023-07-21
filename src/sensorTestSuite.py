@@ -43,10 +43,10 @@ if __name__ == '__main__':
     if config['a'] == True:
         room_names = [
             'Sweets',
-            'Full-bodied reds',
-            'Light-to-medium bodied reds',
+            'Full-bodied-reds',
+            'Light-to-medium-bodied-reds',
             'Sparklings',
-            'Dry Whites'
+            'Dry-Whites'
         ]
         massive_script_test(queue_names=queue_names, error_queue=error_queue, room_names=room_names)
     else:
@@ -69,6 +69,6 @@ if __name__ == '__main__':
 
         default_queue = sqs.get_queue_by_name(QueueName=default_queue_name)
         # Instantiate based on the type name
-        sensor = sensor_type(default_queue, error_queue, f"{queue_names.get(default_queue_name).__name__}", room, 0.5)
+        sensor = sensor_type(default_queue, error_queue, f"{queue_names.get(default_queue_name).__name__}", room, 0.2)
 
         sensor.sense()

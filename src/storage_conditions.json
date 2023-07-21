@@ -1,6 +1,6 @@
 {
     "rooms": [{
-      "room_name": "Full-bodied reds",
+      "room_name": "Full-bodied-reds",
       "min_temperature": 12,
       "max_temperature": 18,
       "max_humidity": 70,
@@ -8,7 +8,7 @@
       "max_vibrations": 0.05
     },
     {
-      "room_name": "Light-to-medium bodied reds",
+      "room_name": "Light-to-medium-bodied-reds",
       "min_temperature": 10,
       "max_temperature": 15,
       "max_humidity": 85,
@@ -16,7 +16,7 @@
       "max_vibrations": 0.01
     },
     {
-      "room_name": "Dry Whites",
+      "room_name": "Dry-Whites",
       "min_temperature": 8,
       "max_temperature": 12,
       "max_humidity": 55,

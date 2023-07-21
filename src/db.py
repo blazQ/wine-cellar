@@ -28,8 +28,8 @@ table = dynamodb.create_table(
 )
 now_stamp = Decimal(datetime.datetime.now().timestamp())
                     
-table.put_item(Item={'room_name': 'Full-bodied reds', 'door_status': 'Closed', 'door_timestamp': now_stamp, 'current_temperature': 17, 'current_vibration': 0, 'current_humidity': 65, 'timestamp': now_stamp})
-table.put_item(Item={'room_name': 'Light-to-medium bodied reds', 'door_status': 'Closed', 'door_timestamp': now_stamp,  'current_temperature': 12, 'current_vibration': 0, 'current_humidity': 80, 'timestamp': now_stamp})
-table.put_item(Item={'room_name': 'Dry Whites', 'door_status': 'Closed', 'door_timestamp': now_stamp,  'current_temperature': 10, 'current_vibration': 0, 'current_humidity': 50, 'timestamp': now_stamp})
-table.put_item(Item={'room_name': 'Sparklings', 'door_status': 'Closed', 'door_timestamp': now_stamp, 'current_temperature': 6, 'current_vibration': 0, 'current_humidity': 70, 'timestamp': now_stamp})
-table.put_item(Item={'room_name': 'Sweets', 'door_status': 'Closed', 'door_timestamp': now_stamp, 'current_temperature': 4, 'current_vibration': 0, 'current_humidity': 65, 'timestamp': now_stamp})
+table.put_item(Item={'room_name': 'Full-bodied-reds', 'current_temperature': 17, 'current_vibration': 0, 'current_humidity': 65, 'timestamp': now_stamp})
+table.put_item(Item={'room_name': 'Light-to-medium-bodied-reds', 'current_temperature': 12, 'current_vibration': 0, 'current_humidity': 80, 'timestamp': now_stamp})
+table.put_item(Item={'room_name': 'Dry-Whites',  'current_temperature': 10, 'current_vibration': 0, 'current_humidity': 50, 'timestamp': now_stamp})
+table.put_item(Item={'room_name': 'Sparklings', 'current_temperature': 6, 'current_vibration': 0, 'current_humidity': 70, 'timestamp': now_stamp})
+table.put_item(Item={'room_name': 'Sweets', 'current_temperature': 4, 'current_vibration': 0, 'current_humidity': 65, 'timestamp': now_stamp})

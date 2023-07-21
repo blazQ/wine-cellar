@@ -47,6 +47,13 @@ echo "Creating and populating db..."
 python3 ./src/db.py
 
 # Create Kinesis Data Stream
+echo "Creating kinesis streams..."
+
+aws kinesis create-stream --stream-name doorStreamSweets --shard-count 1 --endpoint-url=http://localhost:4566
+aws kinesis create-stream --stream-name doorStreamSparklings --shard-count 1 --endpoint-url=http://localhost:4566
+aws kinesis create-stream --stream-name doorStreamDry-Whites --shard-count 1 --endpoint-url=http://localhost:4566
+aws kinesis create-stream --stream-name doorStreamFull-bodied-reds --shard-count 1 --endpoint-url=http://localhost:4566
+aws kinesis create-stream --stream-name doorStreamLight-to-medium-bodied-reds --shard-count 1 --endpoint-url=http://localhost:4566
 
 # Creating the topic
 echo "Creating the notify topic..."

@@ -18,4 +18,4 @@ class DefaultConfig:
     WAITING_TIME = os.environ.get("DoorWaitingTime", 600)
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
     BOT_ID = os.environ.get("BOT_ID", "")
-    ROOM_CONFIGURATION = os.environ.get("BotId")
+    ROOM_CONFIGURATION = os.environ.get("rooms", ['Full-bodied-reds', 'Light-to-medium-bodied-reds', 'Dry-Whites', 'Sparklings', 'Sweets'])

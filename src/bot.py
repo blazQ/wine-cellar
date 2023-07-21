@@ -56,7 +56,7 @@ def format_item(item):
     current_vibration = item['current_vibration']['N']
     current_humidity = item['current_humidity']['N']
     last_update = str(datetime.datetime.utcfromtimestamp(float(item['timestamp']['N'])).strftime('%Y-%m-%d %H:%M:%S'))
-    item_response = f"The {room_name} room has a temperature of {current_temperature}°C and a relative humidity of {current_humidity}%.\n{current_vibration} vibrations registered right now.\nLast update on {last_update} UTC"
+    item_response = f"The {room_name} room has a temperature of {current_temperature}°C and a relative humidity of {current_humidity}%.\n{current_vibration} hz vibrations registered right now.\nLast update on {last_update} UTC"
     return item_response
      
 
@@ -120,11 +120,6 @@ def handle_user_response(message):
             get_room_info(message)
             bot_status.callback_status = False
         else: send_help(message)
-
-# TODO: Function that recovers data from the S3 buckets and averages it 
-    #TODO: temperature
-    #TODO: humidity
-    #TODO: vibration
 
 # TODO: Function that creates a chart of the trend of vibration and temperature
 
