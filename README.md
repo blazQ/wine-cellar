@@ -36,6 +36,10 @@ Whenever there's an error situation, be it a malfunctioning sensor, or the stora
 
 Here, the message is then processed by a lambda function, that sends an HTTP request to the Telegram bot, which notifies the subscribed user.
 
+The user can simply manage and keep track of all the data through the use of a Telegram Bot.
+He can see the status of all the rooms, or each room individually, check the door status in real time and close it remotely.
+He can also access to charts, that summarize the history of the measurements thanks to the S3 Bucket.
+
 ### Services Used
 
 Here's a brief list of AWS services used:
@@ -103,5 +107,5 @@ Will be written when the project is finished.
 ## Future developments
 
 The project could be improved by adding another data pipeline regarding the light sensors, since it's also a very important metric in the context of wine storage.
-An API gateway could be added in order to create a REST API interface. Lambdas could be introduced in order to create charts of the measurments from the S3 data lake.
 It could also be improved by developing a fully integrated web application, using Flask or some other backend server like Nginx.
+It could be expanded and more functionality could be offered to the user.

@@ -73,8 +73,8 @@ output_role_attach=$(aws iam put-role-policy --role-name lambda-ex --policy-name
 echo "Zipping all lambda functions..."
 
 # Zipping all the functions
-sh zip_lambda.sh doorCheckFunc.py doorStatusFunc.py heatIndexFunc.py notifyFunc.py sensErrorFunc.py temperatureFunc.py vaporFunc.py vibrationFunc.py
-zip -j function9.zip ./src/lambdas/storageConditionsFunc.py ./src/config.py ./src/storage_conditions.json
+sh zip_lambda.sh doorCheckFunc.py doorStatusFunc.py heatIndexFunc.py notifyFunc.py sensErrorFunc.py temperatureFunc.py vaporFunc.py vibrationFunc.py getRoomStatus.py
+zip -j function10.zip ./src/lambdas/storageConditionsFunc.py ./src/config.py ./src/storage_conditions.json
 
 echo "Creating lambda functions.."
 
@@ -119,10 +119,28 @@ output_vib_func=$(aws lambda create-function --function-name vibrationFunc \
 --runtime python3.9 --role $output_role_ARN \
 --endpoint-url=http://localhost:4566)
 
-output_storage_func=$(aws lambda create-function --function-name storageConditionsFunc \
---zip-file fileb://function9.zip --handler storageConditionsFunc.lambda_handler  \
+output_room_func=$(aws lambda create-function --function-name getRoomStatusFunc \
+--zip-file fileb://function9.zip --handler getRoomStatus.lambda_handler  \
 --runtime python3.9 --role $output_role_ARN \
 --endpoint-url=http://localhost:4566)
+
+output_storage_func=$(aws lambda create-function --function-name storageConditionsFunc \
+--zip-file fileb://function10.zip --handler storageConditionsFunc.lambda_handler  \
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
+
+function1_arn=$(echo $output_room_func | jq -r '.FunctionArn')
+
+aws lambda wait function-active-v2 --function-name "doorCheckFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "doorStatusFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "heatIndexFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "notifyFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "sensErrorFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "temperatureFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "vaporFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "vibrationFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "storageConditionsFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "getRoomStatusFunc" --endpoint-url=http://localhost:4566
 
 output_update_v1=$(aws lambda update-function-configuration --function-name vaporFunc \
 --timeout 60 --endpoint-url=http://localhost:4566)
@@ -230,5 +248,17 @@ output_subscribe=$(aws sns subscribe --protocol lambda \
 --notification-endpoint $NOTIFY_ARN \
 --endpoint-url=http://localhost:4566)
 
+echo "Creating API Gateways..."
+output_api1=$(aws --endpoint-url=http://localhost:4566 apigateway create-rest-api --name 'API Gateway Lambda integration')
+api_id1=$(echo $output_api1 | jq -r '.id')
+output_parent1=$(aws --endpoint-url=http://localhost:4566 apigateway get-resources --rest-api-id $api_id1)
+parent_id1=$(echo $output_parent1 | jq -r '.items[0].id')
+output_res=$(aws --endpoint-url=http://localhost:4566 apigateway create-resource --rest-api-id $api_id1 --parent-id $parent_id1 --path-part room)
+resource_id1=$(echo $output_res | jq -r '.id')
+
+output_put_method1=$(aws --endpoint-url=http://localhost:4566 apigateway put-method --rest-api-id $api_id1 --resource-id $resource_id1 --http-method GET --request-parameters 'method.request.path.room=true' --authorization-type "NONE")
+integration_1=$(aws --endpoint-url=http://localhost:4566 apigateway put-integration --rest-api-id $api_id1 --resource-id $resource_id1 --http-method GET --type AWS_PROXY --integration-http-method POST --uri "arn:aws:apigateway:$current_region:lambda:path/2015-03-31/functions/$function1_arn/invocations" --passthrough-behavior WHEN_NO_MATCH)
 echo "Cleaning up folders..."
 rm -f *.zip
+
+echo "API_ID=$api_id1" >> ./.env

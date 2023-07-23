@@ -25,6 +25,14 @@
         "Effect": "Allow",
         "Action":"kinesis:*",
         "Resource":"*"
+      },
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "apigateway.amazonaws.com"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Resource":"*"
       }
     ]
 }

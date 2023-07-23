@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test</title>
+</head>
+<body>
+  <h1>Test!</h1>
+  <% if data %>
+    <% data.each do |item| %>
+        <div>
+        <h2> Things </h2>
+        <% item.each do |key, value| %>
+        <p><strong> <%=key%>: </strong> <%= value%> </p>
+        <% end %>
+        </div>
+    <% end%>
+    <%else %>
+        <p> No data available </p>
+    <% end %>
+</body>
+</html>
