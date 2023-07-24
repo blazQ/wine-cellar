@@ -1,31 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Room Status Dashboard</title>
-  <link rel="stylesheet" type="text/css" href="/styles.css">
-</head>
-<body style="background-color: #722f37;">
-  <h1 style="color: white;">Room Status Dashboard</h1>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  <div class="room-container">
-    <table class="room-table">
-      <tr>
-        <th>Room Name</th>
-        <th>Temperature (&deg;C)</th>
-        <th>Humidity (%)</th>
-        <th>Vibration</th>
-        <th>Timestamp</th>
-      </tr>
-      <% data.each do |room| %>
-        <tr>
-          <td><%= room['room_name']['S'] %></td>
-          <td class="<%= color_temperature(room['current_temperature']['N']) %>"><%= room['current_temperature']['N'] %></td>
-          <td class="<%= color_humidity(room['current_humidity']['N']) %>"><%= room['current_humidity']['N'] %></td>
-          <td class="<%= color_vibration(room['current_vibration']['N']) %>"><%= room['current_vibration']['N'] %></td>
-          <td><%= convert_timestamp(room['timestamp']['N']) %></td>
-        </tr>
+</head>
+<body>
+  <div class="container">
+   <div class="container">
+    <h1 class="mt-5">Room Status Dashboard</h1>
+    <div class="row mt-4">
+      <% data_rooms.each do |room| %>
+        <% door_data = data_doors ? JSON.parse(data_doors).find { |door| door['room'] == room['room_name']['S'] } : nil %>
+        <div class="col-md-4 mb-4">
+          <div class="card" data-door="<%= door_data ? door_data['reading'] : "Not available" %>">
+            <div class="card-body">
+              <h5 class="card-title"><%= room['room_name']['S'] %></h5>
+              <p class="card-text temperature">Temperature: <%= room['current_temperature']['N'] %> &#8451;</p>
+              <p class="card-text humidity">Humidity: <%= room['current_humidity']['N'] %>%</p>
+              <p class="card-text vibration">Vibration: <%= room['current_vibration']['N'] %> g</p>
+              <p class="card-text">Timestamp: <%= convert_timestamp(room['timestamp']['N']) %>
+            </div>
+          </div>
+        </div>
       <% end %>
-    </table>
+    </div>
   </div>
+
+  <script>
+    // JavaScript code to handle the card hover event
+    const cards = document.querySelectorAll('.card');
+
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.classList.add('hovered');
+        if (card.getAttribute('data-door') == 'Open'){
+          card.classList.add('open')
+        }
+        else if (card.getAttribute('data-door') == 'Closed') {
+          card.classList.add('closed')
+        }
+        else {
+          card.classList.add('unknown')
+        }
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.classList.remove('hovered')
+        if (card.getAttribute('data-door') == 'Open'){
+          card.classList.remove('open')
+        }
+        else if (card.getAttribute('data-door') == 'Closed') {
+          card.classList.remove('closed')
+        }
+        else {
+          card.classList.remove('unknown')
+        }
+      });
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
+
+
