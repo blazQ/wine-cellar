@@ -12,6 +12,7 @@ It makes use of Docker, Localstack and various utilities in order to manage, in 
     - [Setting up the environment](#setting-up-the-environment)
     - [Automated Install](#automated-install)
     - [Manual Install](#manual-install)
+    - [Playing around with the app](#playing-around-with-the-app)
   - [Future developments](#future-developments)
 
 ## Introduction
@@ -37,7 +38,7 @@ Whenever there's an error situation, be it a malfunctioning sensor, or the stora
 Here, the message is then processed by a lambda function, that sends an HTTP request to the Telegram bot, which notifies the subscribed user.
 
 The user can simply manage and keep track of all the data through the use of a Telegram Bot.
-He can see the status of all the rooms, or each room individually, check the door status in real time and close it remotely.
+He can see the status of all the rooms, or each room individually, check the door status in real time thanks to Kinesis and an API Gateway.
 He can also access to charts, that summarize the history of the measurements thanks to the S3 Bucket.
 
 ### Services Used
@@ -52,8 +53,9 @@ Here's a brief list of AWS services used:
 - Amazon SNS
 - Amazon EventBridge
 - Amazon CloudWatch Logs
+- Amazon API Gateway
 
-The project also makes use of a Telegram Bot, and hopefully in the future of a web application with an integrated dashboard.
+The project also makes use of a Telegram Bot, and there's a very rough but simple web application with a comprehensive dashboard, powered by Sinatra, a very simple DSL for web app creation.
 
 ## Installation
 
@@ -67,6 +69,8 @@ The project also makes use of a Telegram Bot, and hopefully in the future of a w
 - boto3
 - Telegram Bot
 - JQ
+- Ruby
+- Sinatra
 
 ### Setting up the environment
 
@@ -85,6 +89,8 @@ Then simply
 source .env
 ```
 
+This is required, since the automated install makes use of the BOT_ID and BOT_TOKEN to power up the notification lambda function.
+
 ### Automated Install
 
 Open another terminal in the main folder and start the setup.sh script:
@@ -98,11 +104,41 @@ chmod +x ./zip_lambda.sh
 The shell script gets the current AWS region and gets all of the ARNs from the output of the commands, so there's no need to set anything. It should work regardless of your configuration.
 For example, there's a lambda function that needs the SNS Topic Arn to be present as an environmental variable. This value is provided to the lambda by the script itself, so there's no need for you to configure it.
 
-Instructions will be continued after the Telegram Bot gets implemented..
+Once the setup does its job, it will have appended the API_ID value to the .env.
+You can then start the web app with:
+
+```ruby
+ruby ./src/webapp/app.rb
+```
+
+The web app is accessible at localhost:8080.
+Then you can start the telegram bot, if you want to have a chat with the bot instead of simply viewing the web app.
+
+```python
+python3 ./src/bot.py
+```
+
+The notifications will work regardless of you starting the bot script.
 
 ### Manual Install
 
 Will be written when the project is finished.
+
+### Playing around with the app
+
+You can use the sensor.py and the sensorTestSuite.py to create massive tests for all of the components of the architecture and you can configure the waiting times, queue names and table names from the config.py script and the .env.
+In order to use sensorTestSuite, you can start by invoking a very simple door sensor or temperature sensor:
+
+```python
+python3 ./src/sensorTestSuite.py -st Door -r Sweets
+python3 ./src/sensorTestSuite.py -st Temperature -r Sparklings
+```
+
+Or maybe massively sending random door data to all of the rooms (will fill you up with notifications):
+
+```python
+python3 ./src/sensorTestSuite.py -all
+```
 
 ## Future developments
 

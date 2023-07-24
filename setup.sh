@@ -1,4 +1,4 @@
-# Sourcing .env variables 
+# Sourcing .env variables
 set -a
 source .env
 set +a
@@ -73,8 +73,8 @@ output_role_attach=$(aws iam put-role-policy --role-name lambda-ex --policy-name
 echo "Zipping all lambda functions..."
 
 # Zipping all the functions
-sh zip_lambda.sh doorCheckFunc.py doorStatusFunc.py heatIndexFunc.py notifyFunc.py sensErrorFunc.py temperatureFunc.py vaporFunc.py vibrationFunc.py getRoomStatus.py
-zip -j function10.zip ./src/lambdas/storageConditionsFunc.py ./src/config.py ./src/storage_conditions.json
+sh zip_lambda.sh doorCheckFunc.py doorStatusFunc.py heatIndexFunc.py notifyFunc.py sensErrorFunc.py temperatureFunc.py vaporFunc.py vibrationFunc.py getRooms.py getDoors.py
+zip -j function11.zip ./src/lambdas/storageConditionsFunc.py ./src/config.py ./src/storage_conditions.json
 
 echo "Creating lambda functions.."
 
@@ -119,17 +119,23 @@ output_vib_func=$(aws lambda create-function --function-name vibrationFunc \
 --runtime python3.9 --role $output_role_ARN \
 --endpoint-url=http://localhost:4566)
 
-output_room_func=$(aws lambda create-function --function-name getRoomStatusFunc \
---zip-file fileb://function9.zip --handler getRoomStatus.lambda_handler  \
+output_room_func=$(aws lambda create-function --function-name getRoomsFunc \
+--zip-file fileb://function9.zip --handler getRooms.lambda_handler  \
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
+
+output_doors_func=$(aws lambda create-function --function-name getDoorsFunc \
+--zip-file fileb://function10.zip --handler getDoors.lambda_handler  \
 --runtime python3.9 --role $output_role_ARN \
 --endpoint-url=http://localhost:4566)
 
 output_storage_func=$(aws lambda create-function --function-name storageConditionsFunc \
---zip-file fileb://function10.zip --handler storageConditionsFunc.lambda_handler  \
+--zip-file fileb://function11.zip --handler storageConditionsFunc.lambda_handler  \
 --runtime python3.9 --role $output_role_ARN \
 --endpoint-url=http://localhost:4566)
 
 function1_arn=$(echo $output_room_func | jq -r '.FunctionArn')
+function2_arn=$(echo $output_doors_func | jq -r '.FunctionArn')
 
 aws lambda wait function-active-v2 --function-name "doorCheckFunc" --endpoint-url=http://localhost:4566
 aws lambda wait function-active-v2 --function-name "doorStatusFunc" --endpoint-url=http://localhost:4566
@@ -140,7 +146,7 @@ aws lambda wait function-active-v2 --function-name "temperatureFunc" --endpoint-
 aws lambda wait function-active-v2 --function-name "vaporFunc" --endpoint-url=http://localhost:4566
 aws lambda wait function-active-v2 --function-name "vibrationFunc" --endpoint-url=http://localhost:4566
 aws lambda wait function-active-v2 --function-name "storageConditionsFunc" --endpoint-url=http://localhost:4566
-aws lambda wait function-active-v2 --function-name "getRoomStatusFunc" --endpoint-url=http://localhost:4566
+aws lambda wait function-active-v2 --function-name "getRoomsFunc" --endpoint-url=http://localhost:4566
 
 output_update_v1=$(aws lambda update-function-configuration --function-name vaporFunc \
 --timeout 60 --endpoint-url=http://localhost:4566)
@@ -258,6 +264,14 @@ resource_id1=$(echo $output_res | jq -r '.id')
 
 output_put_method1=$(aws --endpoint-url=http://localhost:4566 apigateway put-method --rest-api-id $api_id1 --resource-id $resource_id1 --http-method GET --request-parameters 'method.request.path.room=true' --authorization-type "NONE")
 integration_1=$(aws --endpoint-url=http://localhost:4566 apigateway put-integration --rest-api-id $api_id1 --resource-id $resource_id1 --http-method GET --type AWS_PROXY --integration-http-method POST --uri "arn:aws:apigateway:$current_region:lambda:path/2015-03-31/functions/$function1_arn/invocations" --passthrough-behavior WHEN_NO_MATCH)
+
+
+output_res2=$(aws --endpoint-url=http://localhost:4566 apigateway create-resource --rest-api-id $api_id1 --parent-id $parent_id1 --path-part doors)
+resource_id2=$(echo $output_res2 | jq -r '.id')
+
+output_put_method1=$(aws --endpoint-url=http://localhost:4566 apigateway put-method --rest-api-id $api_id1 --resource-id $resource_id2 --http-method GET --request-parameters 'method.request.path.doors=true' --authorization-type "NONE")
+integration_2=$(aws --endpoint-url=http://localhost:4566 apigateway put-integration --rest-api-id $api_id1 --resource-id $resource_id2 --http-method GET --type AWS_PROXY --integration-http-method POST --uri "arn:aws:apigateway:$current_region:lambda:path/2015-03-31/functions/$function2_arn/invocations" --passthrough-behavior WHEN_NO_MATCH)
+
 echo "Cleaning up folders..."
 rm -f *.zip
 

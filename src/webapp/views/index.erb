@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test</title>
+  <title>Room Status Dashboard</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css">
 </head>
-<body>
-  <h1>Test!</h1>
-  <% if data %>
-    <% data.each do |item| %>
-        <div>
-        <h2> Things </h2>
-        <% item.each do |key, value| %>
-        <p><strong> <%=key%>: </strong> <%= value%> </p>
-        <% end %>
-        </div>
-    <% end%>
-    <%else %>
-        <p> No data available </p>
-    <% end %>
+<body style="background-color: #722f37;">
+  <h1 style="color: white;">Room Status Dashboard</h1>
+
+  <div class="room-container">
+    <table class="room-table">
+      <tr>
+        <th>Room Name</th>
+        <th>Temperature (&deg;C)</th>
+        <th>Humidity (%)</th>
+        <th>Vibration</th>
+        <th>Timestamp</th>
+      </tr>
+      <% data.each do |room| %>
+        <tr>
+          <td><%= room['room_name']['S'] %></td>
+          <td class="<%= color_temperature(room['current_temperature']['N']) %>"><%= room['current_temperature']['N'] %></td>
+          <td class="<%= color_humidity(room['current_humidity']['N']) %>"><%= room['current_humidity']['N'] %></td>
+          <td class="<%= color_vibration(room['current_vibration']['N']) %>"><%= room['current_vibration']['N'] %></td>
+          <td><%= convert_timestamp(room['timestamp']['N']) %></td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
 </body>
 </html>
