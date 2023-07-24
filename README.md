@@ -107,14 +107,14 @@ For example, there's a lambda function that needs the SNS Topic Arn to be presen
 Once the setup does its job, it will have appended the API_ID value to the .env.
 You can then start the web app with:
 
-```ruby
+```shell
 ruby ./src/webapp/app.rb
 ```
 
 The web app is accessible at localhost:8080.
 Then you can start the telegram bot, if you want to have a chat with the bot instead of simply viewing the web app.
 
-```python
+```shell
 python3 ./src/bot.py
 ```
 
@@ -129,14 +129,14 @@ Will be written when the project is finished.
 You can use the sensor.py and the sensorTestSuite.py to create massive tests for all of the components of the architecture and you can configure the waiting times, queue names and table names from the config.py script and the .env.
 In order to use sensorTestSuite, you can start by invoking a very simple door sensor or temperature sensor:
 
-```python
+```shell
 python3 ./src/sensorTestSuite.py -st Door -r Sweets
 python3 ./src/sensorTestSuite.py -st Temperature -r Sparklings
 ```
 
 Or maybe massively sending random door data to all of the rooms (will fill you up with notifications):
 
-```python
+```shell
 python3 ./src/sensorTestSuite.py -all
 ```
 
