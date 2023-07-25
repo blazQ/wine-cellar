@@ -6,7 +6,7 @@ require 'date'
 set :port, 8080
 
 Dotenv.load(File.expand_path("../../../.env", __FILE__))
-API_ENDPOINT = 'http://localhost:4566' # Replace with your LocalStack API endpoint
+API_ENDPOINT = 'http://localhost:4566'
 
 get '/' do
   query_params = {
@@ -15,14 +15,14 @@ get '/' do
   }
 
   api_id = ENV['API_ID']
-  # Make a request to your LocalStack API
+
   response_rooms = HTTParty.get("#{API_ENDPOINT}/restapis/#{api_id}/test/_user_request_/room", query: query_params)
   response_doors = HTTParty.get("#{API_ENDPOINT}/restapis/#{api_id}/test/_user_request_/doors", query: query_params)
   if response_rooms.success? && response_doors.success?
-    # Assuming your API returns JSON data
+
     data_rooms = JSON.parse(response_rooms.body)
     data_doors = JSON.parse(response_doors.body)
-    # Do something with the data and render it in your view
+
     erb :index, locals: { data_doors: data_doors, data_rooms: data_rooms }
   else
     "Error: #{response.code}"

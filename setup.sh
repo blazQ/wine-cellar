@@ -73,8 +73,8 @@ output_role_attach=$(aws iam put-role-policy --role-name lambda-ex --policy-name
 echo "Zipping all lambda functions..."
 
 # Zipping all the functions
-sh zip_lambda.sh doorCheckFunc.py doorStatusFunc.py heatIndexFunc.py notifyFunc.py sensErrorFunc.py temperatureFunc.py vaporFunc.py vibrationFunc.py getRooms.py getDoors.py
-zip -j function11.zip ./src/lambdas/storageConditionsFunc.py ./src/config.py ./src/storage_conditions.json
+sh zip_lambda.sh doorCheckFunc.py doorStatusFunc.py heatIndexFunc.py notifyFunc.py sensErrorFunc.py temperatureFunc.py vaporFunc.py vibrationFunc.py getRooms.py getDoors.py getSensorData.py
+zip -j function12.zip ./src/lambdas/storageConditionsFunc.py ./src/config.py ./src/storage_conditions.json
 
 echo "Creating lambda functions.."
 
@@ -129,13 +129,19 @@ output_doors_func=$(aws lambda create-function --function-name getDoorsFunc \
 --runtime python3.9 --role $output_role_ARN \
 --endpoint-url=http://localhost:4566)
 
+output_sensor_func=$(aws lambda create-function --function-name getSensorData \
+--zip-file fileb://function11.zip --handler getSensorData.lambda_handler  \
+--runtime python3.9 --role $output_role_ARN \
+--endpoint-url=http://localhost:4566)
+
 output_storage_func=$(aws lambda create-function --function-name storageConditionsFunc \
---zip-file fileb://function11.zip --handler storageConditionsFunc.lambda_handler  \
+--zip-file fileb://function12.zip --handler storageConditionsFunc.lambda_handler  \
 --runtime python3.9 --role $output_role_ARN \
 --endpoint-url=http://localhost:4566)
 
 function1_arn=$(echo $output_room_func | jq -r '.FunctionArn')
 function2_arn=$(echo $output_doors_func | jq -r '.FunctionArn')
+function3_arn=$(echo $output_sensor_func | jq -r '.FunctionArn')
 
 aws lambda wait function-active-v2 --function-name "doorCheckFunc" --endpoint-url=http://localhost:4566
 aws lambda wait function-active-v2 --function-name "doorStatusFunc" --endpoint-url=http://localhost:4566
@@ -271,6 +277,12 @@ resource_id2=$(echo $output_res2 | jq -r '.id')
 
 output_put_method1=$(aws --endpoint-url=http://localhost:4566 apigateway put-method --rest-api-id $api_id1 --resource-id $resource_id2 --http-method GET --request-parameters 'method.request.path.doors=true' --authorization-type "NONE")
 integration_2=$(aws --endpoint-url=http://localhost:4566 apigateway put-integration --rest-api-id $api_id1 --resource-id $resource_id2 --http-method GET --type AWS_PROXY --integration-http-method POST --uri "arn:aws:apigateway:$current_region:lambda:path/2015-03-31/functions/$function2_arn/invocations" --passthrough-behavior WHEN_NO_MATCH)
+
+output_res3=$(aws --endpoint-url=http://localhost:4566 apigateway create-resource --rest-api-id $api_id1 --parent-id $parent_id1 --path-part sensor)
+resource_id3=$(echo $output_res3 | jq -r '.id')
+
+output_put_method2=$(aws --endpoint-url=http://localhost:4566 apigateway put-method --rest-api-id $api_id1 --resource-id $resource_id3 --http-method GET --request-parameters 'method.request.path.sensors=true' --authorization-type "NONE")
+integration_3=$(aws --endpoint-url=http://localhost:4566 apigateway put-integration --rest-api-id $api_id1 --resource-id $resource_id3 --http-method GET --type AWS_PROXY --integration-http-method POST --uri "arn:aws:apigateway:$current_region:lambda:path/2015-03-31/functions/$function3_arn/invocations" --passthrough-behavior WHEN_NO_MATCH)
 
 echo "Cleaning up folders..."
 rm -f *.zip

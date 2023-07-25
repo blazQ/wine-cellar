@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         timestamp_date = datetime.datetime.now()
         timestamp_str = str(timestamp_date.strftime("%Y-%m-%d %H:%M:%S"))
         id = record["messageId"]
-        key = id + '-' + payload_json['device_type'] + '-' + timestamp_str
+        key = id + '_' + payload_json['device_type'] + '_' + timestamp_str
         s3.Bucket(DefaultConfig.BUCKET_DUMP_DEFAULT_NAME).put_object(
             Key=key, Body=payload
         )

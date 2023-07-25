@@ -16,7 +16,7 @@ def lambda_handler(event, context):
         payload_json = json.loads(payload)
         timestamp = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         id = record["messageId"]
-        key = id + '-' + payload_json['device_type'] + '-' + timestamp
+        key = id + '_' + payload_json['device_type'] + '_' + timestamp
         s3.Bucket(DefaultConfig.BUCKET_DUMP_DEFAULT_NAME).put_object(
             Key=key, Body=payload
         )
@@ -27,7 +27,7 @@ def lambda_handler(event, context):
         # Load it into the second queue
         vapor_pressure_queue = sqs.get_queue_by_name(QueueName=DefaultConfig.VAPOR_PRESSURE_QUEUE_DEFAULT_NAME)
         # JSON is better
-        vapor_pressure_dict = {'vapor_pressure': vapor_pressure, 
+        vapor_pressure_dict = {'vapor_pressure': vapor_pressure,
                                'timestamp': timestamp,
                                'room': room_name
                                }
