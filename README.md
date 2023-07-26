@@ -277,9 +277,9 @@ aws lambda create-event-source-mapping --function-name vaporFunc --batch-size 5 
  --maximum-batching-window-in-seconds 60 --event-source-arn $DEWPOINT_ARN \
  --endpoint-url=http://localhost:4566
 
- output_e_2=$(aws lambda create-event-source-mapping --function-name vibrationFunc --batch-size 5 \
+ aws lambda create-event-source-mapping --function-name vibrationFunc --batch-size 5 \
  --maximum-batching-window-in-seconds 60 --event-source-arn $VIBRATION_ARN \
- --endpoint-url=http://localhost:4566)
+ --endpoint-url=http://localhost:4566
 
  ....
 
