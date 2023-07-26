@@ -174,7 +174,7 @@ def handle_button_click(call):
     if call.data == "get_doors":
         get_doors(call.message)
     if call.data == "chart_sensors":
-        pass
+        bot.send_message(chat_id=call.message.chat.id, text="Use /chart_sensors sensor_type to view the history of sensor_type measurements.")
 
 @bot.message_handler(func=lambda message: True)
 def handle_user_response(message):
