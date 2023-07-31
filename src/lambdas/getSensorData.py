@@ -32,10 +32,10 @@ def lambda_handler(event, context):
                         # add them to return body
                         return_body.append(room_measurements)
 
-        else: return_body = "No data!"
+        else: return_body = ""
 
     else: # Return error
-        return_body = "No data!"
+        return_body = ""
 
     return {
         'isBase64Encoded': False,
