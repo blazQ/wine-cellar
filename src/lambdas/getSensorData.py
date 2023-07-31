@@ -22,8 +22,8 @@ def lambda_handler(event, context):
             # if measurements for a specific room were asked:
             if 'room_name' in event['queryStringParameters']:
                 # consider only the relevant measurements when making the charts
-                relevant_measurements = [{'reading': item['reading'], 'timestamp':item['timestamp']} for item in measurements if item['room'] == event['queryStringParameters']['room_name']]
-                return_body = relevant_measurements
+                relevant_measurements = [{'reading': item['reading'], 'timestamp':item['timestamp'], 'room': item['room']} for item in measurements if item['room'] == event['queryStringParameters']['room_name']]
+                return_body.append(relevant_measurements)
             else: # if not, create charts for all rooms present
                 for room in DefaultConfig.ROOM_CONFIGURATION:
                     room_measurements = [{'reading': item['reading'], 'timestamp': item['timestamp'], 'room': item['room']} for item in measurements if item['room'] == room]
