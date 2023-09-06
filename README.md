@@ -27,7 +27,7 @@ This project aims at giving a simplified perspective of what a simple IoT archit
 
 The architecture makes use of Lambda functions to recover sensor data from Amazon SQS Queues.
 The data gets saved to an S3 bucket, for archiving purposes and in the form of a "data lake" for future inspection.
-The aggregated data between each read is obtained by averaging values and comparing them with the current status. This aggregated data gets saved to the DynamoDB table, to provide a full view of the system through a Telegram bot that interfaces with the DB.
+The aggregated data between each read is obtained by averaging values and comparing them with the current status. This aggregated data gets saved to the DynamoDB table, to provide a full view of the system through a Telegram bot that interfaces with the system's status through the API Gateway methods.
 
 The DB differentiates the status of each room, by providing estimations of temperature, relative humidity and vibration. Each room is assigned to a certain type of wine, whose characteristics and storage conditions change and must be preserved.
 
@@ -35,11 +35,11 @@ Keeping the door open in one of the rooms could be a source of trouble: that's w
 
 Whenever there's an error situation, be it a malfunctioning sensor, the storage conditions aren't met or the door still open after 10 minutes, a message is sent to an SNS topic.
 
-Here, the message is then processed by a lambda function, that sends an HTTP request to the Telegram bot, which notifies the subscribed user.
+Here, the message is then processed by a Lambda Function, that sends an HTTP request to the Telegram bot, which notifies the subscribed user.
 
 The user can simply manage and keep track of all the data through the use of a Telegram Bot.
 He can see the status of all the rooms, or each room individually and check the door status in real-time thanks to Kinesis.
-He can also access charts that summarize the history of the measurements, thanks to the S3 Bucket.
+He can also access charts that summarize the history of the measurements, thanks to the information recovered from the S3 Bucket.
 
 All of the relevant user functionalities, such as accessing historical data, or interacting with the status of the system, are done through an API Gateway that exposes the relevant methods, implemented as Lambdas.
 
