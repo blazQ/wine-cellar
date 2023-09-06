@@ -38,8 +38,10 @@ Whenever there's an error situation, be it a malfunctioning sensor, the storage 
 Here, the message is then processed by a lambda function, that sends an HTTP request to the Telegram bot, which notifies the subscribed user.
 
 The user can simply manage and keep track of all the data through the use of a Telegram Bot.
-He can see the status of all the rooms, or each room individually and check the door status in real-time thanks to Kinesis and an API Gateway.
+He can see the status of all the rooms, or each room individually and check the door status in real-time thanks to Kinesis.
 He can also access charts that summarize the history of the measurements, thanks to the S3 Bucket.
+
+All of the relevant user functionalities, such as accessing historical data, or interacting with the status of the system, are done through an API Gateway that exposes the relevant methods, implemented as Lambdas.
 
 ### Services Used
 
