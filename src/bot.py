@@ -126,7 +126,7 @@ def get_sensor_chart(message):
             else: bot.send_message(chat_id=message.chat.id, text="No sensors with that type.")
         else: bot.send_message(chat_id=message.chat.id, text="No room with that name.")
     else:
-        bot.send_message(chat_id=message.chat.id, text="Invalid format. Please use /chart_room room_name")
+        bot.send_message(chat_id=message.chat.id, text="Invalid format. Please use /chart room_name")
 
 @bot.message_handler(commands=['door'])
 def get_door_status(message):
@@ -142,7 +142,7 @@ def get_door_status(message):
                 bot.send_message(chat_id=message.chat.id, text=f"No sensor data for {room_name}")
         else: bot.send_message(chat_id=message.chat.id, text="No room with that name.")
     else:
-        bot.send_message(chat_id=message.chat.id, text="Invalid format. Please use /chart_room room_name")
+        bot.send_message(chat_id=message.chat.id, text="Invalid format. Please use /door room_name")
 
 
 def format_items(items):
